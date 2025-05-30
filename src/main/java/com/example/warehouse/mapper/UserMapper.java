@@ -23,5 +23,8 @@ public class UserMapper{
         return new UserResponse(user.getUserId(),user.getUsername(),user.getEmail(),user.getUserRole().name(),user.getCreatedAt().toEpochMilli(),user.getLastModifiedAt().toEpochMilli());//problem
     }
 
+    public User usernot(User user){
+        return null;
+    }
 
 }
