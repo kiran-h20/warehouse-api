@@ -1,5 +1,7 @@
 package com.example.warehouse.serviceimpl;
 
+import com.example.warehouse.exception.InvalidUserRole;
+import com.example.warehouse.exception.UserNotFoundException;
 import com.example.warehouse.mapper.UserMapper;
 import com.example.warehouse.dto.request.UserRegistrationRequest;
 import com.example.warehouse.dto.response.UserResponse;
@@ -25,7 +27,7 @@ public class UserServiceImpl implements UserService {
         User user = switch (urr.userRole()) {
             case STAFF -> userMapper.userToEntity(urr, new Staff());
             case ADMIN -> userMapper.userToEntity(urr, new Admin());
-            default -> throw new IllegalArgumentException("Invalid user role");
+            default -> throw new InvalidUserRole("Invalid user role");
         };
         userRepository.save(user);
         return userMapper.userToResponse(user);
@@ -35,13 +37,13 @@ public class UserServiceImpl implements UserService {
     public UserResponse findUser(String userId) {
         return userRepository.findById(userId)
                 .map(userMapper::userToResponse)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
     public UserResponse updateUser(String userId, User updatedUser) {
         User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         if (updatedUser.getUsername() != null) existingUser.setUsername(updatedUser.getUsername());
         if (updatedUser.getEmail() != null) existingUser.setEmail(updatedUser.getEmail());
         if (updatedUser.getPassword() != null) existingUser.setPassword(updatedUser.getPassword());
