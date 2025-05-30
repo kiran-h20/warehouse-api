@@ -2,6 +2,7 @@ package com.example.warehouse.serviceimpl;
 
 import com.example.warehouse.mapper.UserMapper;
 import com.example.warehouse.dto.request.UserRegistrationRequest;
+import com.example.warehouse.dto.response.UserResponse;
 import com.example.warehouse.entity.Admin;
 import com.example.warehouse.entity.Staff;
 import com.example.warehouse.entity.User;
@@ -17,31 +18,34 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    private final UserMapper userMapper = new UserMapper();
 
     @Override
-    public void addUser(UserRegistrationRequest urr) {
-        if (urr.userRole().equals(UserRole.STAFF)){
-            User u = new UserMapper().userToEntity(urr,new Staff());
-            userRepository.save(u);
-
-        }
-        else if (urr.userRole().equals(UserRole.ADMIN)){
-            User u = new UserMapper().userToEntity(urr,new Admin());
-            userRepository.save(u);
-        }
+    public UserResponse addUser(UserRegistrationRequest urr) {
+        User user = switch (urr.userRole()) {
+            case STAFF -> userMapper.userToEntity(urr, new Staff());
+            case ADMIN -> userMapper.userToEntity(urr, new Admin());
+            default -> throw new IllegalArgumentException("Invalid user role");
+        };
+        userRepository.save(user);
+        return userMapper.userToResponse(user);
     }
 
     @Override
-    public Optional<User> findById(String userId) {
-       Optional<User> user = userRepository.findById(userId);
-        return user;
+    public UserResponse findUser(String userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::userToResponse)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @Override
-    public User updateById(User existingUser) {
+    public UserResponse updateUser(String userId, User updatedUser) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (updatedUser.getUsername() != null) existingUser.setUsername(updatedUser.getUsername());
+        if (updatedUser.getEmail() != null) existingUser.setEmail(updatedUser.getEmail());
+        if (updatedUser.getPassword() != null) existingUser.setPassword(updatedUser.getPassword());
         userRepository.save(existingUser);
-        return null;
+        return userMapper.userToResponse(existingUser);
     }
-
-
 }
