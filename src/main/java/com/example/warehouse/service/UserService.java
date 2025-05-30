@@ -1,0 +1,16 @@
+package com.example.warehouse.service;
+
+import com.example.warehouse.dto.request.UserRegistrationRequest;
+import com.example.warehouse.entity.User;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+
+public interface UserService {
+    void addUser(UserRegistrationRequest user);
+
+    Optional<User> findById(String userId);
+
+    User updateById(User existingUser);
+}
