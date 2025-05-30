@@ -39,7 +39,4 @@ public class UserController {
         UserResponse userResponse = userService.updateUser(userId, updatedUser);
         return RestResponseBuilder.ok("User updated successfully", userResponse, HttpStatus.OK);
     }
-
-    // delete method
-
 }
