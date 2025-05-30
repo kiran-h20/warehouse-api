@@ -40,4 +40,6 @@ public class UserController {
         return RestResponseBuilder.ok("User updated successfully", userResponse, HttpStatus.OK);
     }
 
+    // delete method
+
 }
