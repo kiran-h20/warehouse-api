@@ -37,4 +37,7 @@ public class WareHouse {
 
     @OneToMany(mappedBy = "warehouse")
     private List<Admin> admins;
+
+    @OneToMany(mappedBy = "warehouse")
+    private List<Room> room;
 }
