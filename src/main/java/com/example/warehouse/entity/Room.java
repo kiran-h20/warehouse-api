@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.List;
+
 @Inheritance(strategy = InheritanceType.JOINED)
 @Entity
 @Getter
@@ -15,6 +17,9 @@ public class Room {
 
     @ManyToOne
     private WareHouse warehouse;
+
+    @OneToMany(mappedBy = "room")
+    private List<Block> block;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
