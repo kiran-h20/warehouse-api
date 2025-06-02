@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @AllArgsConstructor
 @RestController
-
 public class RoomController {
 
     private final RoomService roomService;

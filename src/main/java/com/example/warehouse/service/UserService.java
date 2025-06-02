@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface UserService {
     UserResponse addUser(UserRegistrationRequest user);
     UserResponse findUser(String userId);
-    UserResponse updateUser(String userId, User updatedUser);
+    UserResponse updateUser(UserRegistrationRequest userRegistrationRequest);
 }

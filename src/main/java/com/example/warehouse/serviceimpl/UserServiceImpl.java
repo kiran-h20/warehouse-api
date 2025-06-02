@@ -2,6 +2,7 @@ package com.example.warehouse.serviceimpl;
 
 import com.example.warehouse.exception.InvalidUserRole;
 import com.example.warehouse.exception.UserNotFoundException;
+import com.example.warehouse.exception.UserNotLoggedInException;
 import com.example.warehouse.mapper.UserMapper;
 import com.example.warehouse.dto.request.UserRegistrationRequest;
 import com.example.warehouse.dto.response.UserResponse;
@@ -11,16 +12,22 @@ import com.example.warehouse.entity.User;
 import com.example.warehouse.enums.UserRole;
 import com.example.warehouse.repository.UserRepository;
 import com.example.warehouse.service.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import static com.example.warehouse.security.AuthUtils.*;
 
 import java.util.Optional;
 
+@AllArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserRepository userRepository;
+
+
+    private final UserRepository userRepository;
     private final UserMapper userMapper = new UserMapper();
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse addUser(UserRegistrationRequest urr) {
@@ -29,6 +36,8 @@ public class UserServiceImpl implements UserService {
             case ADMIN -> userMapper.userToEntity(urr, new Admin());
             default -> throw new InvalidUserRole("Invalid user role");
         };
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
         userRepository.save(user);
         return userMapper.userToResponse(user);
     }
@@ -41,12 +50,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse updateUser(String userId, User updatedUser) {
-        User existingUser = userRepository.findById(userId)
+    public UserResponse updateUser(UserRegistrationRequest userRegistrationRequest) {
+        // Find the user to update by ID
+        User existingUser = userRepository.findById(userRegistrationRequest.userId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        if (updatedUser.getUsername() != null) existingUser.setUsername(updatedUser.getUsername());
-        if (updatedUser.getEmail() != null) existingUser.setEmail(updatedUser.getEmail());
-        if (updatedUser.getPassword() != null) existingUser.setPassword(updatedUser.getPassword());
+
+        // Only allow the currently logged-in user to update their own details
+        String currentUsername = getCurrentUserName()
+                .orElseThrow(() -> new UserNotLoggedInException("user not logged in"));
+        if (!existingUser.getEmail().equals(currentUsername)) {
+            throw new UserNotFoundException("You are not authorized to update this user");
+        }
+
+        // Update fields if provided
+        if (userRegistrationRequest.username() != null) existingUser.setUsername(userRegistrationRequest.username());
+        if (userRegistrationRequest.email() != null) existingUser.setEmail(userRegistrationRequest.email());
+        if (userRegistrationRequest.password() != null) existingUser.setPassword(passwordEncoder.encode(userRegistrationRequest.password()));
         userRepository.save(existingUser);
         return userMapper.userToResponse(existingUser);
     }
