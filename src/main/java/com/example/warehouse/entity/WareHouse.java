@@ -40,4 +40,7 @@ public class WareHouse {
 
     @OneToMany(mappedBy = "warehouse")
     private List<Room> room;
+
+    @OneToMany
+    private List<InboundShipment> shipment;
 }

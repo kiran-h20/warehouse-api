@@ -3,10 +3,7 @@ package com.example.warehouse.serviceimpl;
 import com.example.warehouse.dto.request.BlockRequest;
 import com.example.warehouse.dto.response.BlockResponse;
 import com.example.warehouse.dto.response.RoomResponse;
-import com.example.warehouse.entity.Block;
-import com.example.warehouse.entity.Rack;
-import com.example.warehouse.entity.Room;
-import com.example.warehouse.entity.Unrack;
+import com.example.warehouse.entity.*;
 import com.example.warehouse.exception.RoomNotFoundByIdException;
 import com.example.warehouse.exception.UnSupportedBlockTypeException;
 import com.example.warehouse.mapper.BlockMapper;
@@ -30,8 +27,8 @@ public class BlockServiceImpl implements BlockService {
 
         Room room = roomRepository.findById(roomID).orElseThrow(() -> new RoomNotFoundByIdException("Room is Not Exist!!"));
         Block block = switch (blockRequest.type()) {
-            case RACK -> blockMapper.toEntity(blockRequest, new Rack());
-            case UNRACK -> blockMapper.toEntity(blockRequest, new Unrack());
+            case RACK -> blockMapper.toEntity(blockRequest, new RackedBlock());
+            case UNRACK -> blockMapper.toEntity(blockRequest, new UnrackedBlock());
             default -> throw new UnSupportedBlockTypeException(blockRequest.type() + " is Not Available!!");
         };
         block.setRoom(room);

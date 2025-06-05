@@ -1,6 +1,7 @@
 package com.example.warehouse.serviceimpl;
 
 import com.example.warehouse.exception.InvalidUserRole;
+import com.example.warehouse.exception.UserAlreadyExistException;
 import com.example.warehouse.exception.UserNotFoundException;
 import com.example.warehouse.exception.UserNotLoggedInException;
 import com.example.warehouse.mapper.UserMapper;
@@ -31,6 +32,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse addUser(UserRegistrationRequest urr) {
+
+        Optional<User> existingUser = userRepository.findByEmail(urr.email());
+
+        if(existingUser.isPresent()){
+
+            throw new UserAlreadyExistException("Email already exist");
+
+        }
+
         User user = switch (urr.userRole()) {
             case STAFF -> userMapper.userToEntity(urr, new Staff());
             case ADMIN -> userMapper.userToEntity(urr, new Admin());
@@ -40,6 +50,9 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encodedPassword);
         userRepository.save(user);
         return userMapper.userToResponse(user);
+
+
+
     }
 
     @Override

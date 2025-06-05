@@ -5,16 +5,22 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
+@Inheritance(strategy = InheritanceType.JOINED)
 @Entity
 @Getter
 @Setter
 @Table(name = "block")
-@Inheritance(strategy = InheritanceType.JOINED)
 public class Block {
 
     @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
+
+    @OneToMany
+    @JoinColumn(name = "block_id")
+    private List<Rack> rack;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
