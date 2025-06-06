@@ -7,7 +7,6 @@ import com.example.warehouse.mapper.ClientMapper;
 import com.example.warehouse.repository.ClientRepository;
 import com.example.warehouse.service.ClientService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
